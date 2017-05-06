@@ -2,6 +2,7 @@ const logger = require('../helpers/logger');
 const Consumer = require('sqs-consumer');
 const AWS = require('aws-sdk');
 const transactionHandler = require('../handlers/transactionHandler');
+const bugsnag = require('../helpers/bugsnag');
 
 AWS.config.update({
   region: process.env.TRANSACTION_QUEUE_REGION,
@@ -34,6 +35,7 @@ function poll(numConsumers) {
     });
 
     app.on('error', (err) => {
+      bugsnag.notify(err);
       logger.error({
         at: 'server#onError',
         message: 'Consumer threw error',
