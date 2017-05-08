@@ -29,15 +29,15 @@ async function _rescoreContract(address, runId) {
     throw new Error('Could not find contract');
   }
 
-  // if (contract.score.lastRescoreId >= runId) {
-  //   logger.info({
-  //     at: 'rescore#_rescoreContract',
-  //     message: 'Contract already rescored',
-  //     address: address,
-  //     runId: runId
-  //   });
-  //   return;
-  // }
+  if (contract.score.lastRescoreId >= runId) {
+    logger.info({
+      at: 'rescore#_rescoreContract',
+      message: 'Contract already rescored',
+      address: address,
+      runId: runId
+    });
+    return;
+  }
 
   const txCount = await contractService.getTransactionCount(address);
 
