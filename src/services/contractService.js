@@ -2,6 +2,8 @@ const LRU = require("lru-cache");
 const web3 = require('../helpers/web3');
 const Contract = require('../models/contract');
 const logger = require('../helpers/logger');
+const redis = require('../helpers/redis');
+const constants = require('../lib/constants');
 
 const IS_CONTRACT_CACHE_SIZE = 100000;
 const EXISTING_CONTRACTS_CACHE_SIZE = 100000;
@@ -44,5 +46,22 @@ async function createContractIfNotExist(address) {
   await contract.save();
 }
 
+function transactionReceived(address) {
+  return redis.incrAsync(constants.REDIS_COUNTER_PREFIX + address);
+}
+
+async function getTransactionCount(address) {
+  const count = await redis.getAsync(constants.REDIS_COUNTER_PREFIX + address);
+
+  return count ? parseInt(count) : 0;
+}
+
+function resetTransactionCount(address) {
+  return redis.setAsync(constants.REDIS_COUNTER_PREFIX + address, 0);
+}
+
 module.exports.isContract = isContract;
 module.exports.createContractIfNotExist = createContractIfNotExist;
+module.exports.transactionReceived = transactionReceived;
+module.exports.getTransactionCount = getTransactionCount;
+module.exports.resetTransactionCount = resetTransactionCount;
