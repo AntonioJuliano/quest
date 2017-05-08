@@ -47,7 +47,7 @@ async function createContractIfNotExist(address) {
 }
 
 function transactionReceived(address) {
-  return redis.incrAsync(constants.REDIS_COUNTER_PREFIX + address);
+  return redis.incrAsync(constants.REDIS_TX_COUNTER_PREFIX + address);
 }
 
 async function getTransactionCount(address) {
