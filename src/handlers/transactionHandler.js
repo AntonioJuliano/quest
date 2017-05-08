@@ -1,9 +1,6 @@
 const validator = require('../validators/transactionValidator');
 const logger = require('../helpers/logger');
 const contractService = require('../services/contractService');
-const redis = require('../helpers/redis');
-
-const REDIS_COUNTER_PREFIX = 'tasked/txCount:';
 
 async function handle(transaction) {
   validator.validate(transaction);
@@ -26,7 +23,7 @@ async function handle(transaction) {
 
   if (isToContract) {
     await contractService.createContractIfNotExist(transaction.to, transaction.blockNumber);
-    const count = await redis.incrAsync(REDIS_COUNTER_PREFIX + transaction.to);
+    const count = await contractService.transactionReceived(transaction.to);
     logger.info({
       at: 'transactionHandler#handle',
       message: 'Updated contract tx count',

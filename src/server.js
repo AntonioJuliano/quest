@@ -4,6 +4,6 @@ require('@risingstack/trace');
 const dotenv = require('dotenv');
 dotenv.load();
 
-const transactionConsumer = require('./consumers/transactionConsumer');
+const queueInitializer = require('./consumers/initializer');
 
-transactionConsumer.poll(20);
+queueInitializer.initializeQueues();
