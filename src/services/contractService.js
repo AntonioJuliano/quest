@@ -51,13 +51,13 @@ function transactionReceived(address) {
 }
 
 async function getTransactionCount(address) {
-  const count = await redis.getAsync(constants.REDIS_COUNTER_PREFIX + address);
+  const count = await redis.getAsync(constants.REDIS_TX_COUNTER_PREFIX + address);
 
   return count ? parseInt(count) : 0;
 }
 
 function resetTransactionCount(address) {
-  return redis.setAsync(constants.REDIS_COUNTER_PREFIX + address, 0);
+  return redis.setAsync(constants.REDIS_TX_COUNTER_PREFIX + address, 0);
 }
 
 module.exports.isContract = isContract;
