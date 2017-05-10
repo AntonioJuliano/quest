@@ -10,13 +10,13 @@ const rescorers = {
   contract: _rescoreContract
 }
 
-function rescore({ address, type, runId }) {
-  _validate(address, type, runId);
+function rescore({ address, type, runId, force }) {
+  _validate(address, type, runId, force);
 
   return rescorers[type](address, runId);
 }
 
-async function _rescoreContract(address, runId) {
+async function _rescoreContract(address, runId, force) {
   logger.info({
     at: 'rescore#_rescoreContract',
     message: 'Starting contract rescore',
@@ -30,7 +30,7 @@ async function _rescoreContract(address, runId) {
     throw new Error('Could not find contract');
   }
 
-  if (contract.score.lastRescoreId >= runId) {
+  if (!force && contract.score.lastRescoreId >= runId) {
     logger.info({
       at: 'rescore#_rescoreContract',
       message: 'Contract already rescored',
@@ -60,7 +60,7 @@ async function _rescoreContract(address, runId) {
   })
 }
 
-function _validate(address, type, runId) {
+function _validate(address, type, runId, force) {
   if (!address) {
     throw new Error('address missing');
   }
@@ -71,6 +71,10 @@ function _validate(address, type, runId) {
 
   if (!runId || typeof runId !== 'number') {
     throw new Error('Invalid runId: ' + runId);
+  }
+
+  if (force !== undefined || force !== true || force !== false) {
+    throw new Error('Invalid force: ' + force);
   }
 }
 
