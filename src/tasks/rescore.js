@@ -60,9 +60,9 @@ async function _rescoreContract(address, runId) {
 }
 
 function _computeScore(contract, txCount) {
+  // This score is weighted by a log function when used to rank results
   const oldScore = contract.score.value || 0;
-  const newScore = Math.floor(oldScore * .8)
-                   + Math.floor(10000 * Math.log(txCount + 1) / Math.log(2));
+  const newScore = Math.floor(oldScore * .8 + txCount);
   return newScore;
 }
 
