@@ -1,6 +1,7 @@
 const Contract = require('../models/contract');
 const logger = require('../helpers/logger');
 const contractService = require('../services/contractService');
+const contractScorer = require('../lib/contractScorer');
 
 // Increment this if the score algorithm is changed
 const SCORE_VERSION = 1;
@@ -41,7 +42,7 @@ async function _rescoreContract(address, runId) {
 
   const txCount = await contractService.getTransactionCount(address);
 
-  const updatedScore = _computeScore(contract, txCount);
+  const updatedScore = contractScorer.score(contract, txCount);
 
   contract.score.value = updatedScore;
   contract.score.lastRescoreId = runId;
@@ -57,13 +58,6 @@ async function _rescoreContract(address, runId) {
     updatedScore: updatedScore,
     runId: runId
   })
-}
-
-function _computeScore(contract, txCount) {
-  // This score is weighted by a log function when used to rank results
-  const oldScore = contract.score.value || 0;
-  const newScore = Math.floor(oldScore * .8 + txCount);
-  return newScore;
 }
 
 function _validate(address, type, runId) {
