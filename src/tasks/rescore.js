@@ -11,9 +11,9 @@ const rescorers = {
 }
 
 function rescore({ address, type, runId, force }) {
-  _validate(address, type, runId, force);
+  _validate(address, type, runId);
 
-  return rescorers[type](address, runId);
+  return rescorers[type](address, runId, force);
 }
 
 async function _rescoreContract(address, runId, force) {
@@ -60,7 +60,7 @@ async function _rescoreContract(address, runId, force) {
   })
 }
 
-function _validate(address, type, runId, force) {
+function _validate(address, type, runId) {
   if (!address) {
     throw new Error('address missing');
   }
@@ -71,10 +71,6 @@ function _validate(address, type, runId, force) {
 
   if (!runId || typeof runId !== 'number') {
     throw new Error('Invalid runId: ' + runId);
-  }
-
-  if (force !== undefined || force !== true || force !== false) {
-    throw new Error('Invalid force: ' + force);
   }
 }
 
