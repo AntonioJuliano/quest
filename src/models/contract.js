@@ -91,6 +91,11 @@ const contractSchema = new Schema({
       lastRescoreId: 0,
       version: 1
     }
+  },
+  isToken: {
+    type: Boolean,
+    index: true,
+    default: false
   }
 });
 
@@ -99,6 +104,36 @@ contractSchema.pre('save', function(next) {
   this.pendingMetadata = (this.pendingLinks && this.pendingLinks.length > 0)
     || (this.pendingDescriptions && this.pendingDescriptions.length > 0)
     || (this.tags && this.tags.filter( t => !t.approved ).length > 0);
+  next();
+});
+
+contractSchema.pre('save', function(next) {
+  /* eslint-disable no-invalid-this */
+  if (this.abi) {
+    const balanceOf = this.abi.filter( f => f.name === 'balanceOf' )[0];
+    const decimals = this.abi.filter( f => f.name === 'decimals' )[0];
+    const symbol = this.abi.filter( f => f.name === 'symbol' )[0];
+
+    if (balanceOf
+        && decimals
+        && symbol
+        && symbol.inputs.length === 0
+        && symbol.constant
+        && symbol.outputs.length === 1
+        && symbol.outputs[0].type === 'string'
+        && decimals.constant
+        && decimals.inputs.length === 0
+        && decimals.outputs.length === 1
+        && decimals.outputs[0].type === 'uint8'
+        && balanceOf.constant
+        && balanceOf.inputs.length === 1
+        && balanceOf.inputs[0].type === 'address'
+        && balanceOf.outputs.length === 1
+        && balanceOf.outputs[0].type === 'uint256') {
+
+      this.isToken = true;
+    }
+  }
   next();
 });
 
