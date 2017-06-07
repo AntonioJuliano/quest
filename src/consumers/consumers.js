@@ -57,6 +57,7 @@ function createConsumer(queue, handler) {
           await handler.handle(JSON.parse(message.Body));
           done();
         } catch (e) {
+          bugsnag.notify(e);
           logger.error({
             at: 'consumer#error',
             message: 'Processing message threw error',
