@@ -12,7 +12,7 @@ function score(contract, txCount) {
   // Weight contracts with source code higher
   const sourceWeight = contract.link ? SOURCE_WEIGHT : 1;
 
-  const newScore = Math.round((oldScore * OLD_SCORE_WEIGHT + txCount) * linkWeight * sourceWeight);
+  const newScore = Math.round((oldScore * OLD_SCORE_WEIGHT + txCount * linkWeight * sourceWeight));
   return newScore;
 }
 
