@@ -96,6 +96,13 @@ const contractSchema = new Schema({
     type: Boolean,
     index: true,
     default: false
+  },
+  creator: {
+    type: String,
+    index: true
+  },
+  creationTxHash: {
+    type: String
   }
 });
 

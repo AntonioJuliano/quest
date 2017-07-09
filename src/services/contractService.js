@@ -21,7 +21,7 @@ async function isContract(address) {
   return web3Result && web3Result !== '0x';
 }
 
-async function createContractIfNotExist(address) {
+async function createContractIfNotExist(address, creator, creationTxHash) {
   const cacheResult = existingContractsCache.get(address);
   if (cacheResult !== undefined) {
     return;
@@ -30,6 +30,18 @@ async function createContractIfNotExist(address) {
   const existingContract = await Contract.findOne({ address: address }).exec();
 
   if (existingContract) {
+    if (existingContract.creator !== creator ||
+        existingContract.creationTxHash !== creationTxHash) {
+      logger.info({
+        at: 'contractService#createContractIfNotExist',
+        message: 'Setting creation info on existing contract',
+        address: address,
+        creator: creator
+      });
+      existingContract.creator = creator;
+      existingContract.creationTxHash = creationTxHash;
+      await existingContract.save();
+    }
     return;
   }
 
@@ -41,9 +53,28 @@ async function createContractIfNotExist(address) {
     address: address
   });
 
-  const contract = new Contract({ address: address, code: code });
+  const contract = new Contract({
+    address: address,
+    code: code,
+    creator: creator,
+    creationTxHash: creationTxHash
+  });
 
   await contract.save();
+}
+
+async function contractCreation(tx) {
+  if (tx.to !== null) {
+    throw new Error('Not a contract creation transaction');
+  }
+
+  const txReceipt = await web3.eth.getTransactionReceiptAsync(tx.hash);
+
+  if (!txReceipt.contractAddress) {
+    throw new Error('Receipt did not have contractAddress');
+  }
+
+  await createContractIfNotExist(txReceipt.contractAddress, txReceipt.from, tx.hash);
 }
 
 function transactionReceived(address) {
@@ -65,3 +96,4 @@ module.exports.createContractIfNotExist = createContractIfNotExist;
 module.exports.transactionReceived = transactionReceived;
 module.exports.getTransactionCount = getTransactionCount;
 module.exports.resetTransactionCount = resetTransactionCount;
+module.exports.contractCreation = contractCreation;

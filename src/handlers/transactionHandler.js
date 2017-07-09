@@ -10,19 +10,19 @@ async function handle(transaction) {
     message: 'Processing transaction',
     hash: transaction.hash,
     blockNumber: transaction.blockNumber,
-    blockIndex: transaction.transactionIndex
+    blockIndex: transaction.transactionIndex,
+    doNotCount: transaction.doNotCount
   });
 
   // If the to field is null, then this is a contract creation transaction
   if (transaction.to === null) {
-    // TODO
+    await contractService.contractCreation(transaction);
     return;
   }
 
   const isToContract = await contractService.isContract(transaction.to, transaction.blockNumber);
 
-  if (isToContract) {
-    await contractService.createContractIfNotExist(transaction.to, transaction.blockNumber);
+  if (isToContract && !transaction.doNotCount) {
     const count = await contractService.transactionReceived(transaction.to);
     logger.info({
       at: 'transactionHandler#handle',
