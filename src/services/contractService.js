@@ -30,14 +30,14 @@ async function createContractIfNotExist(address, creator, creationTxHash) {
   const existingContract = await Contract.findOne({ address: address }).exec();
 
   if (existingContract) {
-    logger.info({
-      at: 'contractService#createContractIfNotExist',
-      message: 'Setting creator on existing contract',
-      address: address,
-      creator: creator
-    });
     if (existingContract.creator !== creator ||
         existingContract.creationTxHash !== creationTxHash) {
+      logger.info({
+        at: 'contractService#createContractIfNotExist',
+        message: 'Setting creation info on existing contract',
+        address: address,
+        creator: creator
+      });
       existingContract.creator = creator;
       existingContract.creationTxHash = creationTxHash;
       await existingContract.save();
