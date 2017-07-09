@@ -1,7 +1,7 @@
 const rescore = require('./rescore');
 
 const tasks = {
-  'RESCORE': rescore
+  'RESCORE': rescore,
 }
 
 module.exports = tasks;
