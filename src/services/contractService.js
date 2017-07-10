@@ -74,7 +74,7 @@ async function contractCreation(tx) {
     throw new Error('Receipt did not have contractAddress');
   }
 
-  await createContractIfNotExist(txReceipt.contractAddress, txReceipt.from, tx.hash);
+  await createContractIfNotExist(txReceipt.contractAddress, tx.from, tx.hash);
 }
 
 function transactionReceived(address) {
